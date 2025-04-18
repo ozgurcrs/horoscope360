@@ -3,7 +3,7 @@ import { View, StyleSheet, ViewStyle } from "react-native";
 import LottieView from "lottie-react-native";
 
 interface LoadingAnimationProps {
-  animationSource?: any; // Lottie animasyon kaynağı
+  animationSource?: any;
   containerStyle?: ViewStyle;
   size?: number;
 }

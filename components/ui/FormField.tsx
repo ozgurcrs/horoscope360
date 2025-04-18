@@ -1,12 +1,5 @@
 import React from "react";
-import {
-  View,
-  Text,
-  TextInput,
-  StyleSheet,
-  StyleProp,
-  TextStyle,
-} from "react-native";
+import { View, Text, TextInput, StyleProp, TextStyle } from "react-native";
 
 type FormFieldProps = {
   label: string;

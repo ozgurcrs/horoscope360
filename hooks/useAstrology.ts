@@ -84,7 +84,6 @@ const useAstrology = () => {
       });
       setLoading(false);
     } catch (error) {
-      // Hata durumunda varsayılan değerler
       setDailyHoroscope({
         text: mockData.horoscope.detailedText,
         detailedText: mockData.horoscope.detailedText,
@@ -97,18 +96,14 @@ const useAstrology = () => {
   };
 
   const getWeeklyForecast = async (sign: string) => {
-    // AsyncStorage'da kullanılacak anahtar
     const STORAGE_KEY = "weekly_forecast_data";
 
-    // Önce storage'da veri olup olmadığını kontrol et
     try {
       const storedData = await AsyncStorage.getItem(STORAGE_KEY);
       const today = new Date();
       const dayOfWeek = today.getDay();
 
-      // Eğer depolanmış veri yoksa VEYA Pazartesi günüyse Gemini'den yeni veri al
       if (!storedData || dayOfWeek === 1) {
-        // Gemini API'den tahmin alma işlemleri
         try {
           const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
           const prompt = `${sign} burcu için bu haftanın (önümüzdeki 7 gün) astrolojik öngörüsünü Türkçe olarak yaz. 3-4 cümle ile özetle. Özellikle kariyer, ilişkiler ve dikkat edilmesi gereken günler hakkında bilgi ver. Cevabında "Bu hafta seni neler bekliyor?" sorusuna yanıt veriyormuş gibi başla.`;
@@ -116,7 +111,6 @@ const useAstrology = () => {
           const result = await model.generateContent(prompt);
           const text = result.response.text();
 
-          // Tahmin sonucunu AsyncStorage'a kaydet
           await AsyncStorage.setItem(
             STORAGE_KEY,
             JSON.stringify({
@@ -133,7 +127,6 @@ const useAstrology = () => {
           });
         } catch (error) {
           console.error("Forecast error:", error);
-          // Eğer saklanan veri varsa ve sadece güncelleme sırasında hata olduysa
           if (storedData) {
             const parsedData = JSON.parse(storedData);
             setWeeklyForecast({
@@ -143,7 +136,6 @@ const useAstrology = () => {
           }
         }
       } else {
-        // Pazartesi değilse ve stored data varsa, saklanan veriyi getir
         const parsedData = JSON.parse(storedData);
         setWeeklyForecast({
           title: "Bu hafta seni neler bekliyor?",
@@ -165,11 +157,9 @@ const useAstrology = () => {
         const dailyPlanetPositions = calculateDailyPlanetPositions();
         setDailyPlanetPositions(dailyPlanetPositions);
 
-        // Basit ay evresi hesaplaması
         const simpleMoonPhase = getSimpleMoonPhase();
         setMoonPhase(simpleMoonPhase);
 
-        // Burç yorumunu al
         await getDailyHoroscope();
         await getWeeklyForecast(userInfo?.horoscope.sunSign || "");
       } catch (error) {
@@ -180,12 +170,10 @@ const useAstrology = () => {
     loadAllData();
   }, []);
 
-  // Basit ay evresi hesaplaması - Gemini API'den bağımsız
   const getSimpleMoonPhase = (): MoonPhase => {
     const today = new Date();
     const dayOfMonth = today.getDate();
 
-    // Ayın gününe göre evreyi belirle (basit hesaplama)
     let phase = "";
     let description = "";
 
@@ -207,7 +195,6 @@ const useAstrology = () => {
         "Kendini keşfetme yolculuğundasın. Geçmişten ders al ve geleceğe umutla bak. Seni sınırlandıran düşüncelerden arınma vakti, yeni bir döngüye hazırlan!";
     }
 
-    // Ayın haftasına göre daha detaylı evreler
     if (dayOfMonth === 1 || dayOfMonth === 2) {
       phase = "Yeni Ay";
       description =
@@ -259,13 +246,10 @@ const useAstrology = () => {
 export default useAstrology;
 
 function calculateDailyPlanetPositions(): PlanetPosition[] {
-  // Bu gerçek bir hesaplama değil, basitleştirilmiş örnek veri
-
   const currentDate = new Date();
   const day = currentDate.getDate();
   const month = currentDate.getMonth() + 1;
 
-  // Her ay için gezegenler yaklaşık 30 derecelik ilerleme kaydeder
   const planets = [
     { name: "Güneş", baseSign: "Koç", degreePerDay: 1, icon: "sunny-outline" },
     {
@@ -316,13 +300,10 @@ function calculateDailyPlanetPositions(): PlanetPosition[] {
     "Balık",
   ];
 
-  // Her gezegen için pozisyon hesapla
   return planets.map((planet) => {
-    // Basit bir algoritma: gün + ay bazlı bir değer hesapla
     const dayFactor = (day + month * 30) * planet.degreePerDay;
     const totalDegrees = dayFactor % 360;
 
-    // Hangi burçta olduğunu hesapla (her burç 30 derece)
     const signIndex = Math.floor(totalDegrees / 30);
     const sign = signs[signIndex];
 

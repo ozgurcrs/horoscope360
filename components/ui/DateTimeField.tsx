@@ -40,8 +40,6 @@ export const DateTimeField = ({
     if (selectedDate) {
       setTempDate(selectedDate);
       if (Platform.OS === "android") {
-        // Android'de her seçimde modal kapanmaz
-        // iOS'ta DateTimePicker zaten modal içinde gösterilir
         onChange(selectedDate);
         setShowModal(false);
       }

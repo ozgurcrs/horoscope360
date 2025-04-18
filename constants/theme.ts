@@ -1,7 +1,6 @@
 import { Colors } from "./Colors";
 import { Typo } from "./Typo";
 
-// Açık ve koyu tema için typography'yi daha sonra özelleştirebilirsiniz
 export const theme = {
   light: {
     colors: Colors.light,

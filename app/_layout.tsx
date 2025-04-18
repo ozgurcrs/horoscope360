@@ -7,7 +7,6 @@ import "react-native-reanimated";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { UserProvider } from "@/context/UserContext";
 
-import { useColorScheme } from "@/hooks/useColorScheme";
 import { Platform, Text as RNText, TextProps } from "react-native";
 
 import "../global.css";

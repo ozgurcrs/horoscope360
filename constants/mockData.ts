@@ -23,7 +23,7 @@ export interface DailyColorEnergy {
 
 export const COLOR_ENERGIES: DailyColorEnergy[] = [
   {
-    day: 0, // Pazar
+    day: 0,
     color: "#FF5733",
     gradient: ["#FF5733", "#FFC300"],
     name: "Turuncu Alev",
@@ -37,7 +37,7 @@ export const COLOR_ENERGIES: DailyColorEnergy[] = [
     icon: "sunny-outline",
   },
   {
-    day: 1, // Pazartesi
+    day: 1,
     color: "#3498DB",
     gradient: ["#3498DB", "#2980B9"],
     name: "Sakin Mavi",
@@ -51,7 +51,7 @@ export const COLOR_ENERGIES: DailyColorEnergy[] = [
     icon: "water-outline",
   },
   {
-    day: 2, // Salı
+    day: 2,
     color: "#27AE60",
     gradient: ["#27AE60", "#2ECC71"],
     name: "Canlı Yeşil",
@@ -65,7 +65,7 @@ export const COLOR_ENERGIES: DailyColorEnergy[] = [
     icon: "leaf-outline",
   },
   {
-    day: 3, // Çarşamba
+    day: 3,
     color: "#9B59B6",
     gradient: ["#9B59B6", "#8E44AD"],
     name: "Gizemli Mor",
@@ -79,7 +79,7 @@ export const COLOR_ENERGIES: DailyColorEnergy[] = [
     icon: "moon-outline",
   },
   {
-    day: 4, // Perşembe
+    day: 4,
     color: "#F1C40F",
     gradient: ["#F1C40F", "#F39C12"],
     name: "Parlak Sarı",
@@ -93,7 +93,7 @@ export const COLOR_ENERGIES: DailyColorEnergy[] = [
     icon: "sunny-outline",
   },
   {
-    day: 5, // Cuma
+    day: 5,
     color: "#E74C3C",
     gradient: ["#E74C3C", "#C0392B"],
     name: "Canlı Kırmızı",
@@ -107,7 +107,7 @@ export const COLOR_ENERGIES: DailyColorEnergy[] = [
     icon: "heart-outline",
   },
   {
-    day: 6, // Cumartesi
+    day: 6,
     color: "#8E44AD",
     gradient: ["#8E44AD", "#9B59B6"],
     name: "Derin Mor",

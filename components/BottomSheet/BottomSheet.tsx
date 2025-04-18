@@ -15,7 +15,6 @@ import {
   ScrollView,
   KeyboardEvent,
   Platform,
-  TouchableWithoutFeedback,
 } from "react-native";
 import Animated, {
   useAnimatedStyle,
@@ -54,12 +53,10 @@ const BottomSheet = React.forwardRef<BottomSheetRefProps, BottomSheetProps>(
     },
     ref
   ) => {
-    // Başlangıçta ekranın dışında (altında)
     const translateY = useSharedValue(SCREEN_HEIGHT);
     const active = useSharedValue(false);
     const [keyboardHeight, setKeyboardHeight] = useState(0);
 
-    // Klavye yüksekliğini izleyelim
     useEffect(() => {
       const keyboardDidShowListener = Keyboard.addListener(
         Platform.OS === "ios" ? "keyboardWillShow" : "keyboardDidShow",
@@ -67,7 +64,6 @@ const BottomSheet = React.forwardRef<BottomSheetRefProps, BottomSheetProps>(
           const height = e.endCoordinates.height;
           setKeyboardHeight(height);
 
-          // Klavye açıldığında BottomSheet'i yukarı kaydır
           if (active.value) {
             const keyboardAdjustedPosition = SCREEN_HEIGHT * 0.15;
             translateY.value = withTiming(keyboardAdjustedPosition, {
@@ -82,7 +78,6 @@ const BottomSheet = React.forwardRef<BottomSheetRefProps, BottomSheetProps>(
         () => {
           setKeyboardHeight(0);
 
-          // Klavye kapandığında aktif snap point'e geri dön
           if (active.value) {
             const activePoint = snapPoints[snapPoints.length - 1];
             translateY.value = withTiming(SCREEN_HEIGHT * (1 - activePoint), {
@@ -101,7 +96,6 @@ const BottomSheet = React.forwardRef<BottomSheetRefProps, BottomSheetProps>(
     const scrollTo = useCallback((destination: number) => {
       "worklet";
 
-      // Eğer destination 0 ise, BottomSheet'i kapat
       if (destination === 0) {
         translateY.value = withTiming(SCREEN_HEIGHT, { duration: 300 });
         active.value = false;
@@ -109,13 +103,9 @@ const BottomSheet = React.forwardRef<BottomSheetRefProps, BottomSheetProps>(
         return;
       }
 
-      // Android için daha yüksek değer kullan
       const adjustedDestination =
-        Platform.OS === "android" && destination > 0.8
-          ? 0.98 // Android'de neredeyse tam ekran
-          : destination;
+        Platform.OS === "android" && destination > 0.8 ? 0.98 : destination;
 
-      // Pozitif değeri ekranın o kadarını kaplasın diye kullan
       const finalPosition = SCREEN_HEIGHT * (1 - adjustedDestination);
 
       translateY.value = withTiming(finalPosition, {
@@ -124,7 +114,6 @@ const BottomSheet = React.forwardRef<BottomSheetRefProps, BottomSheetProps>(
 
       active.value = true;
 
-      // Android'de güvenilir olması için ikinci kontrol
       if (Platform.OS === "android") {
         setTimeout(() => {
           runOnJS(ensureOpen)(adjustedDestination);
@@ -132,7 +121,6 @@ const BottomSheet = React.forwardRef<BottomSheetRefProps, BottomSheetProps>(
       }
     }, []);
 
-    // Açık kalmasını garanti et
     const ensureOpen = (destination: number) => {
       if (active.value && Platform.OS === "android") {
         const finalPosition = SCREEN_HEIGHT * (1 - destination);
@@ -149,15 +137,12 @@ const BottomSheet = React.forwardRef<BottomSheetRefProps, BottomSheetProps>(
       isActive,
     ]);
 
-    // Pan gesture handler
     const gestureHandler = useAnimatedGestureHandler({
       onStart: (_, ctx: any) => {
         ctx.startY = translateY.value;
         ctx.startTime = new Date().getTime();
       },
       onActive: (event, ctx) => {
-        // Sadece header bölgesinde ve anlamlı kaydırmalara izin ver
-        // Eğer olay header bölgesinde değilse veya küçük bir kaydırma ise hiçbir şey yapma
         if (event.absoluteY < 150 && Math.abs(event.translationY) > 10) {
           const newTranslateY = Math.max(
             SCREEN_HEIGHT * 0.02, // Minimum pozisyon
@@ -167,13 +152,11 @@ const BottomSheet = React.forwardRef<BottomSheetRefProps, BottomSheetProps>(
         }
       },
       onEnd: (event, ctx) => {
-        // Çok kısa sürede az hareket olan dokunmaları tıklama olarak kabul et ve hiçbir şey yapma
         const duration = new Date().getTime() - ctx.startTime;
         if (duration < 300 && Math.abs(event.translationY) < 10) {
           return;
         }
 
-        // Hızlı/uzun sürükleme varsa kapat
         if (event.velocityY > 500 || translateY.value > SCREEN_HEIGHT * 0.6) {
           translateY.value = withTiming(SCREEN_HEIGHT, { duration: 300 });
           active.value = false;
@@ -182,7 +165,6 @@ const BottomSheet = React.forwardRef<BottomSheetRefProps, BottomSheetProps>(
             runOnJS(onClose)();
           }
         } else {
-          // Aksi takdirde en üst snap pointe git
           const highestPoint = Math.max(...snapPoints);
           translateY.value = withTiming(SCREEN_HEIGHT * (1 - highestPoint), {
             duration: 300,
@@ -191,7 +173,6 @@ const BottomSheet = React.forwardRef<BottomSheetRefProps, BottomSheetProps>(
       },
     });
 
-    // Backdrop stili (opacity animasyonu)
     const backDropStyle = useAnimatedStyle(() => {
       return {
         opacity: withTiming(active.value ? backDropOpacity : 0, {
@@ -201,32 +182,26 @@ const BottomSheet = React.forwardRef<BottomSheetRefProps, BottomSheetProps>(
       };
     });
 
-    // BottomSheet stili (yükseklik animasyonu)
     const bottomSheetStyle = useAnimatedStyle(() => {
       return {
         transform: [{ translateY: translateY.value }],
       };
     });
 
-    // BottomSheet'i kapat
     const closeBottomSheet = () => {
-      Keyboard.dismiss(); // Klavyeyi kapat
+      Keyboard.dismiss();
       translateY.value = withTiming(SCREEN_HEIGHT, { duration: 300 });
       active.value = false;
       if (onClose) onClose();
     };
 
-    // BottomSheet'in yüksekliğini hesapla (klavye açıkken daha küçük)
     const contentHeightStyle = {
       maxHeight:
-        keyboardHeight > 0
-          ? SCREEN_HEIGHT * 0.6 // Klavye açıkken daha küçük
-          : SCREEN_HEIGHT * 0.85, // Klavye kapalıyken daha büyük
+        keyboardHeight > 0 ? SCREEN_HEIGHT * 0.6 : SCREEN_HEIGHT * 0.85,
     };
 
     return (
       <>
-        {/* Backdrop */}
         <Animated.View style={[styles.backdrop, backDropStyle]}>
           <Pressable
             style={styles.backdropPressable}
@@ -260,12 +235,11 @@ const BottomSheet = React.forwardRef<BottomSheetRefProps, BottomSheetProps>(
                 </View>
               </View>
 
-              {/* İçerik - TouchableWithoutFeedback olmadan */}
               <ScrollView
                 style={[styles.content, contentHeightStyle]}
                 contentContainerStyle={{
                   padding: 20,
-                  paddingBottom: 60, // Daha fazla padding
+                  paddingBottom: 60,
                 }}
                 showsVerticalScrollIndicator={true}
                 keyboardShouldPersistTaps="handled"
@@ -274,7 +248,6 @@ const BottomSheet = React.forwardRef<BottomSheetRefProps, BottomSheetProps>(
               >
                 {children}
 
-                {/* Ekstra padding */}
                 <View style={{ height: 20 }} />
 
                 {keyboardHeight > 0 && (

@@ -62,15 +62,12 @@ export default function HomeScreen() {
   };
 
   const handleLogoPress = () => {
-    // Mevcut sayacı artır
     setTapCount((prev) => prev + 1);
 
-    // Her tıklamada zamanlayıcıyı temizle
     if (tapTimeout.current) {
       clearTimeout(tapTimeout.current);
     }
 
-    // 1.5 saniye içinde 5 kez tıklanma kontrolü
     if (tapCount + 1 >= 5) {
       console.log("5 kez tıklandı, tüm verileri silme işlemi başlatılıyor");
       Alert.alert(
@@ -97,7 +94,6 @@ export default function HomeScreen() {
         ]
       );
     } else {
-      // 5 tıklamayı yakalayacak şekilde zamanlayıcıyı ayarla
       tapTimeout.current = setTimeout(() => {
         setTapCount(0);
       }, 1500);
@@ -157,12 +153,10 @@ export default function HomeScreen() {
               </View>
             </TouchableOpacity>
 
-            {/* Selam ve Kullanıcı Adı */}
             <Text style={styles.greetingText}>
               Merhaba, {userInfo?.fullName}
             </Text>
 
-            {/* Burç Kartı */}
             <View style={styles.zodiacCard}>
               <View style={styles.zodiacIconContainer}>
                 <Text style={styles.zodiacIconText}>♌</Text>
@@ -177,7 +171,6 @@ export default function HomeScreen() {
               </View>
             </View>
 
-            {/* Günlük Burç Yorumu */}
             <View style={styles.horoscopeCard}>
               <View style={styles.horoscopeHeader}>
                 <Text style={styles.horoscopeTitle}>Günlük Burç Yorumum</Text>
@@ -261,7 +254,6 @@ export default function HomeScreen() {
               </TouchableOpacity>
             </View>
 
-            {/* Günlük Gezegen Konumları */}
             <View style={styles.sectionHeader}>
               <Text style={styles.sectionTitle}>Günlük Gezegen Konumları</Text>
               <TouchableOpacity>
@@ -289,7 +281,6 @@ export default function HomeScreen() {
               ))}
             </ScrollView>
 
-            {/* Ay Evresi */}
             <View style={styles.moonPhaseCard}>
               <Text style={styles.moonPhaseText}>
                 Ay Evresi: {moonPhase?.phase}
@@ -303,12 +294,10 @@ export default function HomeScreen() {
               </TouchableOpacity>
             </View>
 
-            {/* Günün Tarot Kartı */}
             <TouchableOpacity onPress={() => router.push("/colorenergy")}>
               <DailyColorEnergy />
             </TouchableOpacity>
 
-            {/* Haftalık Öngörüler */}
             <View style={styles.sectionHeader}>
               <Text style={styles.sectionTitle}>Haftalık Öngörüler</Text>
               <TouchableOpacity>
@@ -330,7 +319,6 @@ export default function HomeScreen() {
               </TouchableOpacity>
             </View>
 
-            {/* Boş alan bırak (tab bar için) */}
             <View style={{ height: 90 }} />
           </ScrollView>
         )}

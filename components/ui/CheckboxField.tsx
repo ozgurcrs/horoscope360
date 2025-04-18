@@ -21,7 +21,6 @@ export const CheckboxField = ({
   value,
   onValueChange,
   error,
-  style,
 }: CheckboxFieldProps) => {
   return (
     <View className="mb-4">

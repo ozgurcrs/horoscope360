@@ -1,5 +1,5 @@
 import { useTheme } from "@/hooks/useTheme";
-import { View, Text, StyleSheet, TextStyle } from "react-native";
+import { View, Text, TextStyle } from "react-native";
 
 type TypographyProps = {
   variant: "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "p" | "span";

@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from "react";
+import React, { useRef, useEffect } from "react";
 import {
   View,
   Text,
@@ -6,14 +6,11 @@ import {
   TouchableOpacity,
   Dimensions,
   Image,
-  StatusBar,
   Animated,
-  Alert,
   Platform,
   SafeAreaView,
   ScrollView,
 } from "react-native";
-import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import LottieView from "lottie-react-native";
 import { BottomSheet } from "@/components/BottomSheet";
@@ -58,17 +55,9 @@ export default function WelcomeScreen() {
     router.push("/(tabs)");
   };
 
-  // handleOpenBottomSheet fonksiyonunda değişiklik
   const handleOpenBottomSheet = () => {
-    console.log("BottomSheet'i açmaya çalışıyorum");
-
-    // Android için daha yüksek bir değer kullan
     const openPoint = Platform.OS === "android" ? 0.95 : 0.9;
     bottomSheetRef.current?.scrollTo(openPoint);
-
-    setTimeout(() => {
-      console.log("BottomSheet aktif mi:", bottomSheetRef.current?.isActive());
-    }, 500);
   };
 
   return (
@@ -206,7 +195,7 @@ export default function WelcomeScreen() {
 
       <BottomSheet
         ref={bottomSheetRef}
-        snapPoints={snapPoints} // Platform bazlı snapPoints kullan
+        snapPoints={snapPoints}
         title="Kişisel Bilgiler"
         onClose={handleCloseBottomSheet}
       >

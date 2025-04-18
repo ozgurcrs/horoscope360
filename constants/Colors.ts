@@ -1,5 +1,3 @@
-const tintColorDark = "#fff";
-
 export const Colors = {
   light: {
     primary: "#500073",

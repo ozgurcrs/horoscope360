@@ -49,49 +49,38 @@ export const useWelcome = () => {
   const handleOpenBottomSheet = useCallback(() => {
     console.log("BottomSheet'i açmaya çalışıyorum");
 
-    // Daha yüksek açılma değeri kullan
     const openValue = Platform.OS === "android" ? 0.98 : 0.9;
 
-    // İlk açılış
     bottomSheetRef.current?.scrollTo(openValue);
 
-    // Klavyeyi kapat
     Keyboard.dismiss();
 
-    // Bu işlev BottomSheet'i tam açık tutacak
     const keepBottomSheetFullyOpen = () => {
       if (bottomSheetRef.current?.isActive()) {
         bottomSheetRef.current?.scrollTo(openValue);
       }
     };
 
-    // BottomSheet'in açık kalmasını sağlamak için sürekli kontrol
     let openIntervalId: NodeJS.Timeout;
     const startKeepingOpen = () => {
-      // Önce interval'i temizle (varsa)
       if (openIntervalId) clearInterval(openIntervalId);
 
-      // 100ms'de bir kontrol et (dokunmalar sırasında tepki vermesi için)
       openIntervalId = setInterval(keepBottomSheetFullyOpen, 100);
 
-      // 3 saniye sonra interval'i durdur
       setTimeout(() => {
         clearInterval(openIntervalId);
       }, 3000);
     };
 
-    // Başlat
     startKeepingOpen();
 
-    // Kullanıcı dokunduğunda tekrar başlat (touchstart olayını yakalayamıyoruz,
-    // bu yüzden düzenli kontroller yapacağız)
     setTimeout(() => startKeepingOpen(), 500);
     setTimeout(() => startKeepingOpen(), 1000);
     setTimeout(() => startKeepingOpen(), 2000);
   }, []);
 
   const handleCloseBottomSheet = () => {
-    Keyboard.dismiss(); // Klavyeyi kapat
+    Keyboard.dismiss();
     bottomSheetRef.current?.scrollTo(0);
   };
 
@@ -110,7 +99,6 @@ export const useWelcome = () => {
     setTapCount((prev) => {
       const newCount = prev + 1;
 
-      // 5 hızlı tıklama olduğunda
       if (newCount === 5) {
         resetAllData().then((success) => {
           if (success) {
@@ -121,7 +109,6 @@ export const useWelcome = () => {
         return 0;
       }
 
-      // Tıklama sayacını sıfırla (2 saniye içinde 5 tıklama olmazsa)
       if (tapTimeout.current) {
         clearTimeout(tapTimeout.current);
       }

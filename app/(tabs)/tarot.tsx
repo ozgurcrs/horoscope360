@@ -19,15 +19,13 @@ import { generateGeminiContent } from "@/api/api";
 import { LoadingAnimation } from "@/components/LoadingAnimation";
 
 const { width } = Dimensions.get("window");
-// Daha küçük kart boyutları
 const CARD_WIDTH = width * 0.48;
 const CARD_HEIGHT = CARD_WIDTH * 1.7;
 
-// Tip tanımlamaları
 interface TarotCardType {
   id: number;
   name: string;
-  image: any; // ReturnType<typeof require> yerine kullanabilirsiniz
+  image: any;
   backImage: any;
   meaning?: string;
 }
@@ -41,14 +39,12 @@ interface TarotCardProps {
   onFlip: (cardId: number) => void;
 }
 
-// AsyncStorage için anahtar
 const STORAGE_KEYS = {
   LAST_READING_DATE: "lastTarotReadingDate",
   LAST_READING_CARDS: "lastTarotReadingCards",
   LAST_READING_RESULT: "lastTarotReadingResult",
 };
 
-// Tarot kartları
 const tarotCards: TarotCardType[] = [
   {
     id: 1,
@@ -106,7 +102,6 @@ const tarotCards: TarotCardType[] = [
   },
 ];
 
-// kartı bileşeni
 const TarotCard: React.FC<TarotCardProps> = ({
   card,
   index,
@@ -125,7 +120,7 @@ const TarotCard: React.FC<TarotCardProps> = ({
           flipCard();
         },
         200 + index * 150
-      ); // Daha hızlı sıralı animasyon
+      );
     }
   }, [isSelected]);
 
@@ -133,7 +128,7 @@ const TarotCard: React.FC<TarotCardProps> = ({
     if (isSelected && !isFlipped) {
       Animated.timing(flipAnimation, {
         toValue: 1,
-        duration: 400, // Daha hızlı çevirme animasyonu
+        duration: 400,
         useNativeDriver: true,
       }).start(() => {
         if (onFlip) onFlip(card.id);
@@ -141,7 +136,6 @@ const TarotCard: React.FC<TarotCardProps> = ({
     }
   };
 
-  // Kart rotasyon değerleri
   const frontInterpolate = flipAnimation.interpolate({
     inputRange: [0, 1],
     outputRange: ["0deg", "180deg"],
@@ -160,9 +154,6 @@ const TarotCard: React.FC<TarotCardProps> = ({
     transform: [{ rotateY: backInterpolate }],
   };
 
-  // Görsel efektler için rastgele rotasyon
-  const randomRotation = useRef(Math.random() * 4 - 2).current;
-
   return (
     <TouchableOpacity
       disabled={selectedCards.length >= 3 || isSelected}
@@ -171,10 +162,7 @@ const TarotCard: React.FC<TarotCardProps> = ({
           onSelect(card);
         }
       }}
-      style={[
-        styles.cardContainer,
-        isSelected && styles.selectedCard, // Seçili kart için görsel feedback
-      ]}
+      style={[styles.cardContainer, isSelected && styles.selectedCard]}
     >
       <View style={styles.cardWrapper}>
         {isSelected ? (
@@ -241,19 +229,12 @@ const TarotScreen: React.FC = () => {
   const [hasReadToday, setHasReadToday] = useState<boolean>(false);
   const [lastReadingDate, setLastReadingDate] = useState<string>("");
   const animationRef = useRef<LottieView | null>(null);
-  const cardFlips = useRef(
-    Array(3)
-      .fill(0)
-      .map(() => new Animated.Value(0))
-  ).current;
 
-  // Uygulama başlatıldığında bugün tarot bakılmış mı kontrol et
   useEffect(() => {
     checkLastReadingDate();
     shuffleCards();
   }, []);
 
-  // Gün değişimini kontrol et
   const checkLastReadingDate = async () => {
     try {
       const lastReadingDateStr = await AsyncStorage.getItem(
@@ -270,12 +251,10 @@ const TarotScreen: React.FC = () => {
         const today = new Date().toDateString();
         const lastDate = new Date(lastReadingDateStr).toDateString();
 
-        // Aynı gün içinde okuma yapılmış mı kontrol et
         if (today === lastDate) {
           setHasReadToday(true);
           setLastReadingDate(lastReadingDateStr);
 
-          // Önceki okumanın kartlarını ve sonucunu göster
           if (lastCardsJson && lastResultJson) {
             const lastCards = JSON.parse(lastCardsJson);
             const lastResult = JSON.parse(lastResultJson);
@@ -286,7 +265,6 @@ const TarotScreen: React.FC = () => {
             setIsSelectingCards(false);
           }
         } else {
-          // Yeni gün, yeni okuma
           setHasReadToday(false);
         }
       }
@@ -295,23 +273,19 @@ const TarotScreen: React.FC = () => {
     }
   };
 
-  // Kartları karıştır
   const shuffleCards = () => {
     const shuffled = [...tarotCards];
     for (let i = shuffled.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
     }
-    setShuffledCards(shuffled.slice(0, 9)); // Sadece 9 kart göster
+    setShuffledCards(shuffled.slice(0, 9));
   };
 
-  // Gemini API'den tarot yorumu almak için fonksiyon
   const fetchTarotReading = async (selectedCards: TarotCardType[]) => {
     try {
-      // Seçilen kart isimlerini al
       const cardNames = selectedCards.map((card) => card.name).join(", ");
 
-      // Tarot yorumu için prompt oluştur - daha net bir format isteyelim
       const prompt = `Seçilen tarot kartları: ${cardNames}
 
 Bu tarot kartlarına göre yorumlarını aşağıdaki gibi yap:
@@ -360,14 +334,6 @@ Yorumların sade ve anlaşılır olsun, spiritüel bir dil kullan. Türkçe yazm
         }
       });
 
-      // Debug
-      console.log("---------- AYRIŞTIRILAN VERİLER ----------");
-      console.log("Genel Özet:", overall);
-      console.log("Kart 1:", cardMeanings[0]);
-      console.log("Kart 2:", cardMeanings[1]);
-      console.log("Kart 3:", cardMeanings[2]);
-      console.log("-------------------------------------------");
-
       return {
         overall,
         cards: selectedCards.map((card, index) => ({
@@ -379,7 +345,6 @@ Yorumların sade ve anlaşılır olsun, spiritüel bir dil kullan. Türkçe yazm
       };
     } catch (error) {
       console.error("Tarot yorumu alınamadı:", error);
-      // Hata durumunda basit bir sonuç döndür
       return {
         overall: "Tarot kartlarınız geleceğiniz hakkında ipuçları veriyor.",
         cards: selectedCards.map((card) => ({
@@ -390,7 +355,6 @@ Yorumların sade ve anlaşılır olsun, spiritüel bir dil kullan. Türkçe yazm
     }
   };
 
-  // handleSelectCard fonksiyonunu güncelle
   const handleSelectCard = async (card: TarotCardType) => {
     console.log("Card selected:", card.name);
 
@@ -402,22 +366,18 @@ Yorumların sade ve anlaşılır olsun, spiritüel bir dil kullan. Türkçe yazm
       setSelectedCards(newSelectedCards);
       console.log("Selected cards count:", newSelectedCards.length);
 
-      // Tüm kartlar seçildiğinde
       if (newSelectedCards.length === 3) {
         console.log("All cards selected, starting result generation");
         setIsLoading(true);
 
         try {
-          // Gemini API'den tarot yorumu al
           const result = await fetchTarotReading(newSelectedCards);
 
-          // Önce state'leri güncelle
           setReadingResult(result);
           setShowResult(true);
           setIsSelectingCards(false);
           setHasReadToday(true);
 
-          // Sonra AsyncStorage'a kaydet
           await AsyncStorage.setItem(
             STORAGE_KEYS.LAST_READING_DATE,
             new Date().toISOString()
@@ -441,16 +401,6 @@ Yorumların sade ve anlaşılır olsun, spiritüel bir dil kullan. Türkçe yazm
     }
   };
 
-  const flipCard = (index: number) => {
-    Animated.sequence([
-      Animated.timing(cardFlips[index], {
-        toValue: 180,
-        duration: 500,
-        useNativeDriver: true,
-      }),
-    ]).start();
-  };
-
   const handleCardFlip = (cardId: number) => {
     setFlippedCards([...flippedCards, cardId]);
   };
@@ -459,13 +409,11 @@ Yorumların sade ve anlaşılır olsun, spiritüel bir dil kullan. Türkçe yazm
   console.log(readingResult, "readingResult");
 
   const resetReading = async () => {
-    // Günün tarihi kontrolü
     const today = new Date().toDateString();
     const lastDate = lastReadingDate
       ? new Date(lastReadingDate).toDateString()
       : "";
 
-    // Aynı gün içinde yeni okuma yapamaz
     if (today === lastDate) {
       return;
     }
@@ -478,19 +426,16 @@ Yorumların sade ve anlaşılır olsun, spiritüel bir dil kullan. Türkçe yazm
     setHasReadToday(false);
     shuffleCards();
 
-    // Animasyonu baştan başlat
     if (animationRef.current) {
       animationRef.current.reset();
       animationRef.current.play();
     }
 
-    // Eski verileri temizle
     await AsyncStorage.removeItem(STORAGE_KEYS.LAST_READING_DATE);
     await AsyncStorage.removeItem(STORAGE_KEYS.LAST_READING_CARDS);
     await AsyncStorage.removeItem(STORAGE_KEYS.LAST_READING_RESULT);
   };
 
-  // Bugünün tarihini formatla
   const formatDate = (dateString: string) => {
     if (!dateString) return "";
     const date = new Date(dateString);
@@ -499,17 +444,6 @@ Yorumların sade ve anlaşılır olsun, spiritüel bir dil kullan. Türkçe yazm
       month: "long",
       day: "numeric",
     });
-  };
-
-  // useEffect ile state değişimlerini izle
-  useEffect(() => {
-    console.log("State changed:", { showResult, readingResult });
-  }, [showResult, readingResult]);
-
-  // Kart çekme işlemi başlatıldığında
-  const handleDrawCards = async () => {
-    setIsLoading(true);
-    // ... diğer kod
   };
 
   return (
@@ -577,7 +511,6 @@ Yorumların sade ve anlaşılır olsun, spiritüel bir dil kullan. Türkçe yazm
           </>
         )}
 
-        {/* Sonuç Ekranı */}
         {showResult && readingResult && (
           <ScrollView style={styles.resultContainer}>
             <View style={styles.resultHeader}>
@@ -720,7 +653,7 @@ const styles = StyleSheet.create({
     paddingVertical: 20,
   },
   cardContainer: {
-    marginHorizontal: -30, // Kartları üst üste bindir - biraz azalttık
+    marginHorizontal: -30,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
@@ -853,8 +786,8 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   selectedCard: {
-    opacity: 0.8, // Seçili kartı belirginleştir
-    transform: [{ scale: 0.95 }], // Hafif küçültme efekti
+    opacity: 0.8,
+    transform: [{ scale: 0.95 }],
   },
   cardDetailsContainer: {
     marginBottom: 24,

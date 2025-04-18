@@ -29,21 +29,12 @@ import { LoadingAnimation } from "@/components/LoadingAnimation";
 import { ButtonLoading } from "@/components/ButtonLoading";
 import { useUser } from "@/context/UserContext";
 
-// Reklam komponenti için yer tutucu
-const AdBanner = () => (
-  <View style={styles.adContainer}>
-    <Text style={styles.adText}>REKLAM ALANI</Text>
-  </View>
-);
-
-// Form veri tipleri
 interface PersonData {
   firstName: string;
   lastName: string;
   birthDate: Date;
 }
 
-// Uyumluluk sonucu tipi
 interface CompatibilityResult {
   overallScore: number;
   description: string;
@@ -54,14 +45,11 @@ interface CompatibilityResult {
   }[];
 }
 
-// AsyncStorage için anahtarlar
 const STORAGE_KEY_COMPATIBILITY_USAGE = "compatibility_daily_usage";
 const STORAGE_KEY_COMPATIBILITY_HISTORY = "compatibility_history";
 
-// Geçmiş uyumluluk testlerini saklama limiti
 const MAX_HISTORY_ITEMS = 15;
 
-// Günlük kullanım limitini kontrol et
 const checkDailyUsageLimit = async () => {
   try {
     const storedData = await AsyncStorage.getItem(
@@ -80,7 +68,6 @@ const checkDailyUsageLimit = async () => {
       return { canUse: true, remainingTests: 3 };
     }
 
-    // Günlük limit kontrolü (3 test)
     if (usageData.count >= 3) {
       return { canUse: false, remainingTests: 0 };
     }
@@ -91,11 +78,10 @@ const checkDailyUsageLimit = async () => {
     };
   } catch (error) {
     console.error("Limit kontrolü yapılamadı:", error);
-    return { canUse: true, remainingTests: 1 }; // Hata durumunda izin ver ama sınırlı
+    return { canUse: true, remainingTests: 1 };
   }
 };
 
-// Kullanım sayısını güncelle
 const updateUsageCount = async () => {
   try {
     const today = new Date().toDateString();
@@ -121,7 +107,6 @@ const updateUsageCount = async () => {
   }
 };
 
-// Geçmiş kayıtları yükle
 const loadCompatibilityHistory = async () => {
   try {
     const historyData = await AsyncStorage.getItem(
@@ -137,7 +122,6 @@ const loadCompatibilityHistory = async () => {
   }
 };
 
-// Geçmiş kayıtlara yeni bir sonuç ekle
 const saveToHistory = async (
   userData: PersonData,
   partnerData: PersonData,
@@ -146,16 +130,14 @@ const saveToHistory = async (
   try {
     const history = await loadCompatibilityHistory();
 
-    // Kaydedilecek yeni veri
     const newHistoryItem = {
-      id: Date.now().toString(), // tekil kimlik
+      id: Date.now().toString(),
       date: new Date().toISOString(),
       user: userData,
       partner: partnerData,
       result: result,
     };
 
-    // Aynı sorgu daha önce yapılmış mı kontrol et
     const existingIndex = history.findIndex(
       (item: HistoryItem) =>
         item.user.firstName.toLowerCase() ===
@@ -171,25 +153,20 @@ const saveToHistory = async (
           new Date(partnerData.birthDate).toDateString()
     );
 
-    // Eğer aynı sorgu varsa güncelle, yoksa ekle
     if (existingIndex !== -1) {
-      // Mevcut kaydı güncelle ama tarihini yenile
       history[existingIndex] = {
         ...history[existingIndex],
         date: new Date().toISOString(),
         result: result,
       };
     } else {
-      // Yeni kayıt ekle
-      history.unshift(newHistoryItem); // Başa ekle (en yeni)
+      history.unshift(newHistoryItem);
 
-      // Limit kontrolü
       if (history.length > MAX_HISTORY_ITEMS) {
-        history.pop(); // En eski kaydı sil
+        history.pop();
       }
     }
 
-    // Güncellenmiş geçmişi kaydet
     await AsyncStorage.setItem(
       STORAGE_KEY_COMPATIBILITY_HISTORY,
       JSON.stringify(history)
@@ -207,7 +184,6 @@ interface HistoryItem {
   result: CompatibilityResult;
 }
 
-// İki kişinin aynı olup olmadığını kontrol eden yardımcı fonksiyon
 const areSamePeople = (person1: PersonData, person2: PersonData): boolean => {
   const normalizedName1 = `${person1.firstName.toLowerCase().trim()} ${person1.lastName.toLowerCase().trim()}`;
   const normalizedName2 = `${person2.firstName.toLowerCase().trim()} ${person2.lastName.toLowerCase().trim()}`;
@@ -217,7 +193,6 @@ const areSamePeople = (person1: PersonData, person2: PersonData): boolean => {
   return normalizedName1 === normalizedName2 && birthDate1 === birthDate2;
 };
 
-// İki çiftin (sıralamadan bağımsız olarak) aynı olup olmadığını kontrol eder
 const areSameCouples = (
   couple1: [PersonData, PersonData],
   couple2: [PersonData, PersonData]
@@ -225,18 +200,15 @@ const areSameCouples = (
   const [person1A, person1B] = couple1;
   const [person2A, person2B] = couple2;
 
-  // Normal sırada eşleşme (A-B ile A-B)
   const normalMatch =
     areSamePeople(person1A, person2A) && areSamePeople(person1B, person2B);
 
-  // Ters sırada eşleşme (A-B ile B-A)
   const reverseMatch =
     areSamePeople(person1A, person2B) && areSamePeople(person1B, person2A);
 
   return normalMatch || reverseMatch;
 };
 
-// Mevcut bir sorgu var mı kontrol et
 const checkExistingQuery = async (
   userData: PersonData,
   partnerData: PersonData
@@ -257,7 +229,6 @@ const checkExistingQuery = async (
 };
 
 const CompatibilityScreen: React.FC = () => {
-  // State tanımlamaları
   const [user, setUser] = useState<PersonData>({
     firstName: "",
     lastName: "",
@@ -270,8 +241,7 @@ const CompatibilityScreen: React.FC = () => {
     birthDate: new Date(1990, 0, 1),
   });
 
-  const [activeStep, setActiveStep] = useState<number>(1); // 1: user, 2: partner, 3: result
-  const [showDatePicker, setShowDatePicker] = useState<boolean>(false);
+  const [activeStep, setActiveStep] = useState<number>(1);
   const [currentPerson, setCurrentPerson] = useState<"user" | "partner">(
     "user"
   );
@@ -281,32 +251,24 @@ const CompatibilityScreen: React.FC = () => {
   const animationRef = useRef<LottieView | null>(null);
   const [showHistory, setShowHistory] = useState<boolean>(false);
   const [historyList, setHistoryList] = useState<any[]>([]);
-  const [errors, setErrors] = useState({
-    userBirthDate: "",
-    partnerBirthDate: "",
-  });
+
   const [showDatePickerModal, setShowDatePickerModal] = useState(false);
   const [tempDate, setTempDate] = useState<Date>(new Date());
 
-  const { userInfo } = useUser(); // userInfo'yu context'ten al
+  const { userInfo } = useUser();
 
-  // Tarih formatlama fonksiyonu
   const formatDate = (date: Date) => {
     return format(date, "d MMMM yyyy", { locale: tr });
   };
 
-  // DatePicker görüntüleme fonksiyonu
   const openDatePicker = (person: "user" | "partner") => {
     setCurrentPerson(person);
     setTempDate(person === "user" ? user.birthDate : partner.birthDate);
     setShowDatePickerModal(true);
   };
 
-  // Tamam butonuna tıklandığında
   const handleConfirmDate = () => {
-    // Tarih nesnesini yerel saat dilimine normalize et
     const normalizedDate = new Date(tempDate);
-    // Saati sıfırla ve yerel tarih olarak ayarla
     normalizedDate.setHours(12, 0, 0, 0);
 
     if (currentPerson === "user") {
@@ -317,20 +279,15 @@ const CompatibilityScreen: React.FC = () => {
     setShowDatePickerModal(false);
   };
 
-  // Tarih değiştiğinde
   const handleTempDateChange = (event: any, date?: Date) => {
     if (date) {
-      // Tarih nesnesini yerel saat dilimine normalize et
       const normalizedDate = new Date(date);
-      // Saati sıfırla ve yerel tarih olarak ayarla
       normalizedDate.setHours(12, 0, 0, 0);
       setTempDate(normalizedDate);
     }
   };
 
-  // Sonraki adıma geçme
   const handleNextStep = () => {
-    // Form doğrulama
     if (activeStep === 1) {
       if (!user.firstName || !user.lastName) {
         alert("Lütfen adınızı ve soyadınızı girin");
@@ -346,40 +303,33 @@ const CompatibilityScreen: React.FC = () => {
     }
   };
 
-  // Önceki adıma dönme
   const handlePrevStep = () => {
     if (activeStep > 1) {
       setActiveStep(activeStep - 1);
     }
   };
 
-  // Uyumluluk hesaplama
   const calculateCompatibility = async () => {
     try {
-      // Form doğrulama
       if (!partner.firstName || !partner.lastName) {
         alert("Lütfen diğer kişinin adını ve soyadını girin");
         return;
       }
 
-      // Önce mevcut bir sorgu var mı kontrol et
       const existingQuery = await checkExistingQuery(user, partner);
       if (existingQuery) {
-        // Mevcut sonucu göster
         console.log("Mevcut sorgu bulundu, API çağrısı yapılmadı");
         setResult(existingQuery.result);
         setIsLoading(false);
         setShowResult(true);
         setActiveStep(3);
 
-        // Animasyonu başlat
         if (animationRef.current) {
           animationRef.current.play();
         }
         return;
       }
 
-      // Günlük kullanım limitini kontrol et
       const usageCheck = await checkDailyUsageLimit();
       if (!usageCheck.canUse) {
         Alert.alert(
@@ -391,7 +341,6 @@ const CompatibilityScreen: React.FC = () => {
 
       setIsLoading(true);
 
-      // Gemini API'ye gönderilecek prompt hazırla
       const prompt = compatibilityPrompt(
         `${user.firstName} ${user.lastName}`,
         `${partner.firstName} ${partner.lastName}`,
@@ -399,26 +348,20 @@ const CompatibilityScreen: React.FC = () => {
         formatDate(partner.birthDate)
       );
 
-      // API çağrısı yap
       const response = await generateGeminiContent(prompt);
       const aiText = response.candidates[0].content.parts[0].text;
 
-      // AI cevabını formatla
       const formattedResult = processApiResponse(aiText);
 
-      // Sonucu geçmişe kaydet
       await saveToHistory(user, partner, formattedResult);
 
-      // Kullanım limitini güncelle
       await updateUsageCount();
 
-      // Sonucu state'e ayarla
       setResult(formattedResult);
       setIsLoading(false);
       setShowResult(true);
       setActiveStep(3);
 
-      // Animasyonu başlat
       if (animationRef.current) {
         animationRef.current.play();
       }
@@ -432,19 +375,15 @@ const CompatibilityScreen: React.FC = () => {
     }
   };
 
-  // API yanıtını formatla ve state'e yerleştir
   const processApiResponse = (aiText: string): CompatibilityResult => {
     try {
-      // Rastgele bir genel skor oluştur (60-100 arası)
       const overallScore = Math.floor(Math.random() * 40 + 60);
 
-      // Metin içinden açıklamayı çıkart (ilk paragraf)
       const paragraphs = aiText.split("\n\n");
       const description =
         paragraphs[0] ||
         `${user.firstName} ve ${partner.firstName} arasındaki uyumluluk analizi.`;
 
-      // Uyum alanlarını oluştur
       const areas = [
         {
           title: "Duygusal Uyum",
@@ -467,7 +406,6 @@ const CompatibilityScreen: React.FC = () => {
         },
       ];
 
-      // Sonuç nesnesini oluştur
       const compatibilityResult: CompatibilityResult = {
         overallScore,
         description,
@@ -490,7 +428,6 @@ const CompatibilityScreen: React.FC = () => {
       console.error("API yanıtı formatlanırken hata oluştu:", error);
       setIsLoading(false);
 
-      // Hata durumunda basit bir sonuç göster
       const fallbackResult = {
         overallScore: 70,
         description: `${user.firstName} ve ${partner.firstName} arasındaki uyumluluk analizi.`,
@@ -524,7 +461,6 @@ const CompatibilityScreen: React.FC = () => {
     }
   };
 
-  // Yeni teste başlama
   const handleNewTest = () => {
     setUser({
       firstName: "",
@@ -543,7 +479,6 @@ const CompatibilityScreen: React.FC = () => {
     setResult(null);
   };
 
-  // Geçmiş kayıtları yükle
   const loadHistory = async () => {
     const history = await loadCompatibilityHistory();
     setHistoryList(history);
@@ -555,7 +490,6 @@ const CompatibilityScreen: React.FC = () => {
 
     const loadAllData = async () => {
       if (!isMounted) return;
-      // veri yükleme işlemleri...
     };
 
     loadAllData();
@@ -563,7 +497,7 @@ const CompatibilityScreen: React.FC = () => {
     return () => {
       isMounted = false;
     };
-  }, [userInfo?.horoscope?.sunSign]); // Şimdi userInfo tanımlı
+  }, [userInfo?.horoscope?.sunSign]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -600,7 +534,6 @@ const CompatibilityScreen: React.FC = () => {
                 </TouchableOpacity>
               </View>
 
-              {/* Adım göstergeleri */}
               {!showResult && (
                 <View style={styles.stepsContainer}>
                   <View
@@ -632,7 +565,6 @@ const CompatibilityScreen: React.FC = () => {
                 </View>
               )}
 
-              {/* Adım 1: Kullanıcı Bilgileri */}
               {activeStep === 1 && (
                 <View style={styles.formContainer}>
                   <Text style={styles.formTitle}>Sizin Bilgileriniz</Text>
@@ -700,7 +632,6 @@ const CompatibilityScreen: React.FC = () => {
                 </View>
               )}
 
-              {/* Adım 2: Diğer Kişi Bilgileri */}
               {activeStep === 2 && (
                 <View style={styles.formContainer}>
                   <Text style={styles.formTitle}>Diğer Kişinin Bilgileri</Text>
@@ -770,7 +701,6 @@ const CompatibilityScreen: React.FC = () => {
 
               {isLoading && <LoadingAnimation />}
 
-              {/* Adım 3: Sonuç */}
               {showResult && result && (
                 <View style={styles.resultContainer}>
                   <View style={styles.resultHeader}>
@@ -798,7 +728,6 @@ const CompatibilityScreen: React.FC = () => {
                     {result.description}
                   </Text>
 
-                  {/* Uyum Alanları */}
                   <View style={styles.areasContainer}>
                     <Text style={styles.areasTitle}>Uyum Alanları</Text>
 
@@ -840,7 +769,6 @@ const CompatibilityScreen: React.FC = () => {
         />
       </KeyboardAvoidingView>
 
-      {/* Geçmiş sonuçlar modalı */}
       <Modal
         visible={showHistory}
         transparent={true}
@@ -901,7 +829,6 @@ const CompatibilityScreen: React.FC = () => {
         </View>
       </Modal>
 
-      {/* DatePicker */}
       <Modal
         visible={showDatePickerModal}
         transparent={true}
@@ -973,8 +900,6 @@ const CompatibilityScreen: React.FC = () => {
   );
 };
 
-const { width } = Dimensions.get("window");
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -1005,7 +930,6 @@ const styles = StyleSheet.create({
   historyButton: {
     padding: 8,
   },
-  // Adım göstergeleri
   stepsContainer: {
     flexDirection: "row",
     alignItems: "center",
@@ -1033,7 +957,6 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(255, 255, 255, 0.2)",
     marginHorizontal: 8,
   },
-  // Form
   formContainer: {
     backgroundColor: "rgba(74, 0, 114, 0.4)",
     borderRadius: 16,
@@ -1102,7 +1025,6 @@ const styles = StyleSheet.create({
   buttonDisabled: {
     backgroundColor: "rgba(144, 97, 249, 0.5)",
   },
-  // Sonuç
   resultContainer: {
     marginTop: 10,
   },
@@ -1144,7 +1066,6 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     marginBottom: 24,
   },
-  // Uyum Alanları
   areasContainer: {
     backgroundColor: "rgba(74, 0, 114, 0.4)",
     borderRadius: 12,
@@ -1194,7 +1115,6 @@ const styles = StyleSheet.create({
     lineHeight: 20,
     color: "#D5C2FF",
   },
-  // Yeni Test Butonu
   newTestButton: {
     backgroundColor: "#9061F9",
     borderRadius: 12,
@@ -1208,18 +1128,17 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "600",
   },
-  // DatePicker Modal - Bottom Sheet stilinde ve beyaz tonlarda
   modalContainer: {
     flex: 1,
-    justifyContent: "flex-end", // Ekranın altında göster
+    justifyContent: "flex-end",
     backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
   datePickerContainer: {
-    backgroundColor: "#FFFFFF", // Beyaz arka plan
+    backgroundColor: "#FFFFFF",
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     padding: 20,
-    width: "100%", // Tam genişlik
+    width: "100%",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: -3 },
     shadowOpacity: 0.1,
@@ -1232,9 +1151,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 20,
     borderBottomWidth: 1,
-    borderBottomColor: "rgba(0, 0, 0, 0.1)", // Hafif gri çizgi
+    borderBottomColor: "rgba(0, 0, 0, 0.1)",
     paddingBottom: 10,
-    width: "100%", // Tam genişlik
+    width: "100%",
   },
   datePickerTitle: {
     fontSize: 14,
@@ -1244,9 +1163,9 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
   datePicker: {
-    backgroundColor: Platform.OS === "ios" ? "#F5F5F5" : "transparent", // Hafif gri arka plan (iOS)
+    backgroundColor: Platform.OS === "ios" ? "#F5F5F5" : "transparent",
     height: 180,
-    width: "100%", // Tam genişlik
+    width: "100%",
     marginBottom: 20,
   },
   datePickerButton: {

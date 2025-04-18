@@ -16,7 +16,6 @@ import { Ionicons } from "@expo/vector-icons";
 import LottieView from "lottie-react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-// Soru tipi
 interface Question {
   id: number;
   text: string;
@@ -27,17 +26,6 @@ interface Question {
   }[];
 }
 
-// Renk sonucu tipi
-interface ColorResult {
-  color: string;
-  title: string;
-  description: string;
-  traits: string[];
-  colorHex: string;
-  gradient: string[];
-}
-
-// Tüm renkler için detaylı açıklamalar
 const colorDescriptions = {
   red: {
     title: "KIRMIZI KİŞİLİK",
@@ -135,7 +123,6 @@ const colorDescriptions = {
   },
 };
 
-// Test soruları
 const questions: Question[] = [
   {
     id: 1,
@@ -523,10 +510,8 @@ const questions: Question[] = [
   },
 ];
 
-// Sabitler bölümüne ekleyin
 const STORAGE_KEY_COLORTEST_USAGE = "colortest_daily_usage";
 
-// Günlük kullanım limitini kontrol et
 const checkDailyUsageLimit = async () => {
   try {
     const storedData = await AsyncStorage.getItem(STORAGE_KEY_COLORTEST_USAGE);
@@ -558,7 +543,6 @@ const checkDailyUsageLimit = async () => {
   }
 };
 
-// Kullanım sayısını güncelle
 const updateUsageCount = async () => {
   try {
     const today = new Date().toDateString();
@@ -876,8 +860,6 @@ const ColorTestScreen: React.FC = () => {
     </SafeAreaView>
   );
 };
-
-const { width } = Dimensions.get("window");
 
 const styles = StyleSheet.create({
   container: {

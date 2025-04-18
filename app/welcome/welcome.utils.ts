@@ -1,10 +1,11 @@
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
 import _ from "lodash";
 import { UserFormData } from "@/components/UserInfoForm";
 import { BottomSheetRefProps } from "@/components/BottomSheet";
 import { STORAGE_KEYS } from "@/constants";
+
 const useUserInformations = () => {
   const redirect = useRouter();
   const bottomSheetRef = useRef<BottomSheetRefProps>(null);

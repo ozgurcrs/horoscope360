@@ -64,11 +64,9 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const clearUserInfo = async () => {
     try {
-      // Tüm AsyncStorage verilerini temizle
       await AsyncStorage.clear();
       console.log("Tüm veriler silindi");
 
-      // State'i sıfırla
       setUserInfoState(null);
     } catch (error) {
       console.error("Veri temizleme hatası:", error);
