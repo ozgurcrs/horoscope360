@@ -5,15 +5,12 @@ import axios, {
   InternalAxiosRequestConfig,
 } from "axios";
 
-// Gemini API anahtarını çevre değişkenlerinden alın veya doğrudan ayarlayın
 const GEMINI_API_KEY = process.env.EXPO_PUBLIC_GEMINI_API_KEY || "YOUR_API_KEY";
 
-// Gemini API için temel URL
 const BASE_URL =
   process.env.EXPO_PUBLIC_BASE_URL ||
   "https://generativelanguage.googleapis.com/v1beta";
 
-// Axios örneği oluşturma
 const geminiApi: AxiosInstance = axios.create({
   baseURL: BASE_URL,
   headers: {
@@ -21,14 +18,12 @@ const geminiApi: AxiosInstance = axios.create({
   },
 });
 
-// İstek interceptor'u
 geminiApi.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
     if (config.url && !config.url.includes("key=")) {
       config.url = `${config.url}${config.url.includes("?") ? "&" : "?"}key=${GEMINI_API_KEY}`;
     }
 
-    // İsteği logla (geliştirme sırasında)
     if (process.env.NODE_ENV === "development") {
       console.log("Giden istek:", {
         url: config.url,
@@ -46,7 +41,6 @@ geminiApi.interceptors.request.use(
   }
 );
 
-// Yanıt interceptor'u
 geminiApi.interceptors.response.use(
   (response: AxiosResponse) => {
     // Yanıtı logla (geliştirme sırasında)
