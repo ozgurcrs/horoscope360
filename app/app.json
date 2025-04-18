@@ -1,0 +1,39 @@
+{
+    "expo": {
+        "name": "HoroScope360",
+        "slug": "HoroScope360",
+        "version": "1.0.0",
+        "orientation": "portrait",
+        "icon": "./assets/images/icon.png",
+        "userInterfaceStyle": "light",
+        "splash": {
+            "image": "./assets/images/logo.png",
+            "resizeMode": "contain",
+            "backgroundColor": "#2A004E"
+        },
+        "assetBundlePatterns": [
+            "**/*"
+        ],
+        "ios": {
+            "supportsTablet": true,
+            "bundleIdentifier": "com.ozgurcrs.horoscope360"
+        },
+        "android": {
+            "adaptiveIcon": {
+                "foregroundImage": "./assets/images/icon.png",
+                "backgroundColor": "#2A004E"
+            },
+            "package": "com.horoscope360",
+            "permissions": [],
+            "versionCode": 1,
+            "jsEngine": "hermes"
+        },
+        "web": {
+            "favicon": "./assets/images/icon.png"
+        },
+        "plugins": [
+            "expo-router"
+        ],
+        "scheme": "horoscope360"
+    }
+}
