@@ -25,7 +25,6 @@ export interface UserZodiacInfo {
 }
 
 const cleanJsonResponse = (response: string) => {
-  // Markdown backticks ve json kelimesini temizle
   return response
     .replace(/```json\n?/, "")
     .replace(/```/, "")
@@ -40,11 +39,9 @@ export const getHoroscopeData = async (
   userInfo: UserZodiacInfo;
 } | null> => {
   try {
-    // Önce stored data'yı kontrol et
     const storedData = await checkStoredData();
     if (storedData) return storedData;
 
-    // Kullanıcı bilgilerini al
     const userInfoStr = await AsyncStorage.getItem(STORAGE_KEYS.USER_INFO);
     if (!userInfoStr) {
       throw new Error("User info not found");
@@ -53,7 +50,6 @@ export const getHoroscopeData = async (
     const userInfo = JSON.parse(userInfoStr);
     const birthDateObj = new Date(userInfo.birthDate);
 
-    // Burç ve uyumlu burç bilgisi
     const zodiacPrompt = `${birthDateObj.toISOString()} doğum tarihine göre, sadece aşağıdaki JSON formatında yanıt ver, başka metin ekleme:
     {
       "sign": "<burç adı (türkçe)>",
@@ -67,7 +63,6 @@ export const getHoroscopeData = async (
     console.log("Cleaned Zodiac Text:", zodiacText);
     const zodiacResult = JSON.parse(zodiacText);
 
-    // Günlük burç yorumu ve gezegen konumları
     const dailyPrompt = `${zodiacResult.sign} burcu için, sadece aşağıdaki JSON formatında yanıt ver, başka metin ekleme:
     {
       "horoscope": "<6-7 cümlelik günlük burç yorumu>",
@@ -88,7 +83,6 @@ export const getHoroscopeData = async (
     console.log("Cleaned Daily Text:", dailyText);
     const dailyResult = JSON.parse(dailyText);
 
-    // Haftalık öngörü
     const weeklyPrompt = `${zodiacResult.sign} burcu için, sadece aşağıdaki JSON formatında yanıt ver, başka metin ekleme:
     {
       "prediction": "<gelecek 7 gün için haftalık öngörü>"
@@ -117,7 +111,6 @@ export const getHoroscopeData = async (
       userInfo: zodiacResult,
     };
 
-    // Sonuçları cache'le
     await storeHoroscopeData(result);
 
     return result;
@@ -148,7 +141,6 @@ const checkStoredData = async () => {
       const storedDate = new Date(daily.date).toDateString();
       const weeklyEndDate = new Date(weekly.endDate);
 
-      // Günlük veri bugüne ait ve haftalık veri süresi dolmamışsa
       if (today === storedDate && weeklyEndDate > new Date()) {
         return {
           daily,
